@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"       // 命令行工具库
 	"github.com/spf13/viper"       // 配置管理库
 
+	"crypto/tls"               // 添加TLS配置支持
 	"io/fs"                    // 文件系统接口
 	"net/http"                 // HTTP服务
 	"os"                       // 操作系统功能
@@ -258,8 +259,37 @@ func httpsServer(app *gin.Engine) {
 			tlscert.GenerateSelfSignedCert(CERT_CRT_PATH, CERT_KEY_PATH, "", "")
 		}
 	}
-	// 使用配置的主机和SSL端口启动HTTPS服务
-	if err := app.RunTLS(config.CONF.App.Host+":"+config.CONF.App.SslPort, CERT_CRT_PATH, CERT_KEY_PATH); err != nil {
+
+	// 创建安全的TLS配置以修复CVE-2016-2183漏洞
+	tlsConfig := &tls.Config{
+		MinVersion: tls.VersionTLS12, // 最低使用TLS 1.2
+		MaxVersion: tls.VersionTLS13, // 最高使用TLS 1.3
+		CipherSuites: []uint16{
+			// TLS 1.2 安全密码套件
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
+			tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+		},
+		PreferServerCipherSuites: true, // 优先使用服务器密码套件顺序
+		CurvePreferences: []tls.CurveID{
+			tls.X25519,
+			tls.CurveP256,
+			tls.CurveP384,
+		},
+	}
+
+	// 创建HTTP服务器并配置TLS
+	server := &http.Server{
+		Addr:      config.CONF.App.Host + ":" + config.CONF.App.SslPort,
+		Handler:   app,
+		TLSConfig: tlsConfig,
+	}
+
+	// 启动HTTPS服务
+	if err := server.ListenAndServeTLS(CERT_CRT_PATH, CERT_KEY_PATH); err != nil {
 		panic(err) // 启动失败时触发panic
 	}
 }
