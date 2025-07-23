@@ -190,12 +190,12 @@ export const menuOptions: MenuOption[] = [
       }
     ],
   },
-  {
-    label: '作业流程',
-    key: "sflow",
-    path: "/sflow",
-    icon: renderIcon(GlobeOutline),
-  },
+  // {
+  //   label: '作业流程',
+  //   key: "sflow",
+  //   path: "/sflow",
+  //   icon: renderIcon(GlobeOutline),
+  // },
   {
     label: t('fields.schtask'),
     key: "schtask",

@@ -208,6 +208,8 @@ docker run -d --name minas \
   -p 8003:8003 \
   -v $(pwd)/data:/app/data \
   -v $(pwd)/backup:/backup \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /usr/bin/docker:/usr/bin/docker \
   sorc/minas:latest
 ```
 
