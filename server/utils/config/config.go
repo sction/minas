@@ -4,7 +4,7 @@ package config
 var CONF AppConfig
 
 // Version 当前应用版本号 my-version
-const Version = "1.3.2"
+const Version = "1.3.3"
 
 type AppConfig struct {
 	App struct {
