@@ -81,12 +81,6 @@ func (app *WebDavApp) ListDir(ctx *gin.Context) {
 	// 获取要列出的路径
 	path := ctx.Query("path")
 
-	// 安全检查：验证路径是否存在且可访问
-	if path == "" {
-		response.Data(ctx, "path参数不能为空", []data.Map{})
-		return
-	}
-
 	// 确保路径以分隔符结尾，方便后续拼接文件名
 	if !strings.HasSuffix(path, PthSep) {
 		path += PthSep
