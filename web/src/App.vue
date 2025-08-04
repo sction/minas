@@ -60,7 +60,6 @@ const Root = defineComponent({
 
     // 设置初始化，防止刷新时恢复默认
     onBeforeMount(() => {
-      console.log("onBeforeMount");
       // 设置批量第三方 icon 图标
       setIntroduction.cssCdn();
       // 设置批量第三方 js

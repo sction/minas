@@ -49,6 +49,12 @@ func Init(app *gin.Engine) {
 				System.GET("/check-state", system.SystemCheckState)
 				// 系统初始化接口
 				System.POST("/init", system.SystemInit)
+				// 仪表板统计相关接口
+				System.GET("/dashboard/stats", system.GetDashboardStats)
+				System.GET("/dashboard/task-types", system.GetTaskTypeStats)
+				System.GET("/dashboard/task-execution", system.GetTaskExecutionStats)
+				System.GET("/dashboard/task-trend", system.GetTaskTrend)
+				System.GET("/dashboard/task-projects", system.GetTaskProjectStats)
 			}
 		}
 

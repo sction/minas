@@ -140,7 +140,6 @@ watch(() => route.path, (path: string) => {
 
 onMounted(async () => {
   const r = await systemApi.version();
-  console.log(r);
   version.value = r.data as any;
   menus.value = getMenus()
 })

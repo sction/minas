@@ -204,3 +204,46 @@ func (entity SchLog) List(query request.PageQuery) (list []SchLog, count int64, 
 		return list, 0, err
 	}
 }
+
+// CountByStatus 根据任务状态统计数量
+func (entity SchLog) CountByStatus(status int) (int64, error) {
+	var count int64
+	err := global.DB.Model(&entity).Where("status = ?", status).Count(&count).Error
+	return count, err
+}
+
+// CountByDateAndStatus 根据日期和状态统计数量
+func (entity SchLog) CountByDateAndStatus(date string, status int) (int64, error) {
+	var count int64
+	err := global.DB.Model(&entity).
+		Where("status = ? AND DATE(start_time) = ?", status, date).
+		Count(&count).Error
+	return count, err
+}
+
+// GetStatusStatistics 获取所有状态的统计信息
+func (entity SchLog) GetStatusStatistics() (map[int]int64, error) {
+	results := make(map[int]int64)
+
+	// 查询各种状态的任务数量
+	rows, err := global.DB.Model(&entity).
+		Select("status, COUNT(*) as count").
+		Group("status").
+		Rows()
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var status int
+		var count int64
+		if err := rows.Scan(&status, &count); err != nil {
+			continue
+		}
+		results[status] = count
+	}
+
+	return results, nil
+}

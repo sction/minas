@@ -23,7 +23,8 @@
           <n-tree-select
             v-model:value="schTask.project_dir_id"
             :options="treeData"
-            :default-expanded-keys="expandedKeys"
+            :default-expanded-keys="['0']"
+            :expanded-keys="expandedKeys"
             placeholder="选择项目目录"
             :node-props="treeNodeProps"
             :render-label="renderTreeLabel"
@@ -207,6 +208,7 @@ import { useForm, emailRule, requiredRule, customRule } from "@/utils/form";
 import { useI18n } from 'vue-i18n'
 import { useClipboard } from '@vueuse/core'
 import { deepClone, guid } from "@/utils";
+import { getPageData } from "@/utils/render";
 
 const { t } = useI18n()
 const route = useRoute();
@@ -214,11 +216,16 @@ const router = useRouter();
 const message = useMessage()
 const cronPopover = ref(false)
 const cronValue = ref("0 1 2 3 * ? *")
-const listHandler = () => {
-  router.push({ name: 'schtask_list' })
-}
 const crontabFill = (v: string) => {
   schTask.value.cron = v;
+}
+
+const id = route.params.id as string || ''
+// 检查URL查询参数是否包含项目目录ID
+const projectDirId = getPageData(route.path, 'project_dir_id') as string
+
+const listHandler = () => {
+  router.push({ name: 'schtask_list'});
 }
 const schTask = ref({ cron: "", log_keep_num: 30, type: 'SHELL', script: { type: 1, shell: '' } as any } as any)
 const rules: any = {
@@ -232,7 +239,7 @@ const form = ref({ script: {} as any } as any);
 // 项目目录树相关状态
 const treeData = ref<TreeOption[]>([]);
 const treeLoading = ref(false);
-const expandedKeys = ref<string[]>([]);
+const expandedKeys = ref<any[]>([projectDirId]);
 
 // 项目目录树加载
 const loadProjectDirTree = async () => {
@@ -242,10 +249,8 @@ const loadProjectDirTree = async () => {
     const res = await projectDirApi.getTree(); // 1表示模块类型
     if (res.data && Array.isArray(res.data)) {
       treeData.value = convertToTreeOptions(res.data);
-      
-      // 如果有数据，默认展开第一级
       if (treeData.value.length > 0) {
-        expandedKeys.value = [treeData.value[0].key as string];
+        expandedKeys.value = [treeData.value[0].key];
       }
     }
   } catch (error) {
@@ -309,21 +314,16 @@ const onSelectType = () => {
 }
 
 async function fetchData() {
-  const id = route.params.id as string || ''
-  
   // 加载项目目录树
   await loadProjectDirTree();
   
-  // 检查URL查询参数是否包含项目目录ID
-  const projectDirId = route.query.project_dir_id;
   
   if (id) {
     const r = await schTaskApi.load(id);
     schTask.value = r.data as SchTask;
     schTask.value.script = JSON.parse(schTask.value.script)
   } else if (projectDirId) {
-    // 如果是新建任务，且URL中包含项目目录ID参数
-    schTask.value.project_dir_id = parseInt(projectDirId as string);
+    schTask.value.project_dir_id =  projectDirId
   }
   
   const nasList = (await externalNasApi.search({
@@ -331,7 +331,6 @@ async function fetchData() {
     page: 1,
     size: 0,
   }));
-  console.log("nasList:", nasList)
   nasOptions.value = []
   nasOptions.value.push({ "label": t('fields.local_storage'), "value": "" })
   if (nasList.data) {

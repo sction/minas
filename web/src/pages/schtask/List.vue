@@ -23,7 +23,6 @@
     <n-grid :cols="24" :x-gap="12">
       <!-- 左侧项目目录树 -->
       <n-grid-item :span="6">
-        <n-card :bordered="false" size="small" title="项目目录">
           <n-spin :show="treeLoading">
             <n-tree
               block-line
@@ -33,11 +32,10 @@
               :on-update:selected-keys="handleSelectNode"
             />
           </n-spin>
-        </n-card>
       </n-grid-item>
       <!-- 右侧任务列表 -->
       <n-grid-item :span="18">
-        <n-space :size="12">
+        <n-space style="margin-bottom: 12px;" :size="12">
           <n-input size="small" v-model:value="args.name" :placeholder="t('fields.name')" clearable />
           <n-button size="small" type="primary" @click="() => fetchData()">{{ t('buttons.search') }}</n-button>
         </n-space>
@@ -77,18 +75,24 @@ import type { ProjectDirItem } from "@/api/basic/projectdir";
 import type { SchTask } from "@/api/sch/task";
 import { runStatusMapping, typeMapping } from "@/api/sch/task";
 import { useDataTable } from "@/utils/data-table";
-import { renderButtons, renderLink, renderTag, renderTime } from "@/utils/render";
+import { getPageData, renderButtons, renderLink, renderTag, renderTime, savePageData } from "@/utils/render";
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const route = useRoute();
 const router = useRouter();
 
+
+const args = reactive({
+  name: "",
+  project_dir_id: getPageData(route.path, 'project_dir_id') as string
+});
+
 // 项目目录树相关状态
 const treeData = ref<TreeOption[]>([]);
 const treeLoading = ref(false);
-const expandedKeys = ref<string[]>([]);
-const selectedKeys = ref<string[]>([]);
+const expandedKeys = ref<string[]>([]); // 默认展开第一级目录
+const selectedKeys = ref<string[]>([args.project_dir_id]);
 
 // 项目目录树加载
 const loadProjectDirTree = async () => {
@@ -127,10 +131,11 @@ const handleSelectNode = (keys: string[]) => {
   selectedKeys.value = keys;
   // 根据选中的目录节点过滤任务列表
   if (keys.length > 0) {
-    args.project_dir_id = parseInt(keys[0]);
+    args.project_dir_id = keys[0];
   } else {
-    args.project_dir_id = undefined;
+    args.project_dir_id = '';
   }
+  savePageData(route.path, 'project_dir_id', args.project_dir_id);
   fetchData(1);
 };
 
@@ -147,10 +152,6 @@ const newHandler = () => {
   }
 };
 
-const args = reactive({
-  name: "",
-  project_dir_id: undefined as number | undefined
-});
 
 const columns = [
   {
@@ -238,4 +239,5 @@ watch(() => route.query.filter, (newValue: any, oldValue: any) => {
 onMounted(() => {
   loadProjectDirTree();
 });
+
 </script>

@@ -11,7 +11,6 @@ const jsCdnUrlList: Array<string> = [];
 export function setCssCdn() {
 	if (cssCdnUrlList.length <= 0) return false;
 	cssCdnUrlList.map((v) => {
-		console.log("load css cdn:", v,config.baseUrl);
 		let link = document.createElement('link');
 		link.rel = 'stylesheet';
 		link.href = config.baseUrl + v;

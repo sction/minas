@@ -28,6 +28,7 @@ import {
 } from "@vicons/ionicons5";
 import XIcon from "@/components/Icon.vue";
 import { t } from "@/locales";
+import { removePageData} from "@/utils/render";
 
 const router = useRouter();
 function renderIcon(icon: any) {
@@ -35,6 +36,7 @@ function renderIcon(icon: any) {
 }
 
 export const renderMenuLabel = (option: any) => {
+  removePageData(option.path);
   if (!('path' in option)) {
     return option.label
   }
@@ -117,7 +119,6 @@ export const allow = (menu: any) => {
 }
 export const getMenus = () => {
   const ms = getMenuOptions(menuOptions);
-  console.log(ms);
   return ms;
 }
 const getMenuOptions = (menus: MenuOption[]) => {
@@ -127,7 +128,6 @@ const getMenuOptions = (menus: MenuOption[]) => {
     if (menu.hide) {
       //隐藏菜单
       if (router && menu.path) {
-        console.log("router:", router)
         router.removeRoute(menu.path);
       }
       continue;
@@ -135,7 +135,6 @@ const getMenuOptions = (menus: MenuOption[]) => {
     if (!allow(menu)) {
       //无权限 隐藏菜单
       if (router && menu.path) {
-        console.log("router:", router)
         router.removeRoute(menu.path);
       }
       continue;

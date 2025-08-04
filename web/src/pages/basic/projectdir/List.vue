@@ -20,38 +20,23 @@
     </template>
   </x-page-header>
   <n-space class="page-body" vertical :size="12">
-    <n-space :size="12">
-      <n-input size="small" v-model:value="args.name" :placeholder="t('fields.name')" clearable />
-      <n-button size="small" type="primary" @click="() => fetchData()">{{ t('buttons.search') }}</n-button>
-    </n-space>
     <n-grid :cols="24" :x-gap="12">
       <n-grid-item :span="6">
         <n-card :bordered="false" size="small">
           <n-spin :show="treeLoading">
-            <n-tree
-              :data="treeData"
-              block-line
-              :default-expanded-keys="expandedKeys"
-              :selected-keys="selectedKeys"
-              :on-update:selected-keys="handleSelectNode"
-              selectable
-            />
+            <n-tree :data="treeData" block-line :default-expanded-keys="expandedKeys" :selected-keys="selectedKeys"
+              :on-update:selected-keys="handleSelectNode" selectable />
           </n-spin>
         </n-card>
       </n-grid-item>
       <n-grid-item :span="18">
-        <n-data-table
-          remote
-          :row-key="(row: any) => row.id"
-          size="small"
-          :columns="columns"
-          :data="state.data"
-          :pagination="pagination"
-          :loading="state.loading"
-          @update:page="fetchData"
-          @update-page-size="changePageSize"
-          scroll-x="max-content"
-        />
+        <n-space style="margin-bottom: 12px;" :size="12">
+          <n-input size="small" v-model:value="args.name" :placeholder="t('fields.name')" clearable />
+          <n-button size="small" type="primary" @click="() => fetchData()">{{ t('buttons.search') }}</n-button>
+        </n-space>
+        <n-data-table remote :row-key="(row: any) => row.id" size="small" :columns="columns" :data="state.data"
+          :pagination="pagination" :loading="state.loading" @update:page="fetchData" @update-page-size="changePageSize"
+          scroll-x="max-content" />
       </n-grid-item>
     </n-grid>
   </n-space>
@@ -94,7 +79,7 @@ const message = useMessage();
 const newHandler = () => {
   // 如果已选择了项目目录，则将目录ID传递给新建页面
   if (selectedKeys.value.length > 0) {
-    router.push({ 
+    router.push({
       name: 'projectdir_new',
       query: { parent_id: selectedKeys.value[0] }
     });
@@ -114,7 +99,7 @@ const columns = [
   {
     title: t('fields.id'),
     key: "id",
-    render: (row: ProjectDirItem) => renderLink({ name: 'projectdir_detail', params: { id: row.id } }, row.id+""),
+    render: (row: ProjectDirItem) => renderLink({ name: 'projectdir_detail', params: { id: row.id } }, row.id + ""),
   },
   {
     title: t('fields.name'),
@@ -169,7 +154,7 @@ const loadProjectDirTree = async () => {
     const res = await projectDirApi.getTree();
     if (res.data && Array.isArray(res.data)) {
       treeData.value = convertToTreeOptions(res.data);
-      
+
       // 如果有数据，默认展开第一级
       if (treeData.value.length > 0) {
         expandedKeys.value = [treeData.value[0].key as string];
@@ -187,8 +172,8 @@ const convertToTreeOptions = (dirs: ProjectDirItem[]): TreeOption[] => {
   return dirs.map(dir => ({
     key: dir.id.toString(),
     label: dir.name,
-    children: dir.children && dir.children.length > 0 
-      ? convertToTreeOptions(dir.children) 
+    children: dir.children && dir.children.length > 0
+      ? convertToTreeOptions(dir.children)
       : undefined
   }));
 };

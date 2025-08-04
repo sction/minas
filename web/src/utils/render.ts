@@ -109,11 +109,11 @@ export function renderButtons(btns: Array<Button>) {
         { size: 4 },
         {
             default: () => btns.map(btn => renderButton(
-                btn.type, 
-                btn.text, 
-                btn.action, 
-                btn.prompt, 
-                btn.icon, 
+                btn.type,
+                btn.text,
+                btn.action,
+                btn.prompt,
+                btn.icon,
                 btn.title
             )),
         }
@@ -156,18 +156,18 @@ function renderBtn(
         type: type,
         onClick: action,
     };
-    
+
     // 添加tooltip属性
     if (title) {
         props.title = title;
     }
-    
+
     // 如果有图标，则使用图标插槽
     if (icon) {
         return h(
             NButton,
             props,
-            { 
+            {
                 default: () => text,
                 icon: () => h(icon)
             }
@@ -180,4 +180,22 @@ function renderBtn(
         props,
         { default: () => text }
     );
+}
+export function savePageData(routePath: string, key: string, data: any): void {
+    sessionStorage.setItem('page_' + routePath + '_' + key, data);
+}
+export function getPageData(routePath: string, key: string): any {
+    return sessionStorage.getItem('page_' + routePath + '_' + key);
+}
+export function removePageData(routePath: string, key?: string): void {
+    if (key) {
+        sessionStorage.removeItem('page_' + routePath + '_' + key);
+    } else {
+        Object.keys(sessionStorage).forEach(itemKey => {
+            if (itemKey.startsWith('page_' + routePath + '_')) {
+                sessionStorage.removeItem(itemKey);
+            }
+        });
+    }
+
 }

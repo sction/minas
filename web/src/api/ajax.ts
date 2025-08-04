@@ -62,10 +62,17 @@ class Ajax {
                     console.log(response.data)
                     window.message.error("接口：" + response.config.url + "，响应数据格式错误，请联系管理员！", { duration: 0, closable: true, })
                 }
+                
+                // 检查是否为仪表板统计API，如果是则不显示成功提示
+                const isDashboardAPI = response.config.url && response.config.url.includes('/dashboard/');
+                
                 if (response.data.msg != null && response.data.msg != undefined && response.data.msg != "") {
                     //处理提示信息
                     if (response.data.code == 200) {
-                        window.message.success(response.data.msg)
+                        // 仪表板统计API不显示成功提示
+                        if (!isDashboardAPI) {
+                            window.message.success(response.data.msg)
+                        }
                     } else if (response.data.code == 4000 || response.data.code == 400 || response.data.code == 401 || response.data.code == 403 || response.data.code == 404 || response.data.code == 500) {
                         window.message.error(response.data.msg, { duration: 10000, closable: true, })
                     } else {

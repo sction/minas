@@ -361,3 +361,38 @@ func (entity SchTask) toJob() (cron.SchJob, error) {
 		return cron.SchJob{}, fmt.Errorf("未知的任务类型:%s", entity.Type)
 	}
 }
+
+// CountByType 根据任务类型统计数量
+func (entity SchTask) CountByType(taskType string) (int64, error) {
+	var count int64
+	err := global.DB.Model(&entity).Where("type = ? AND deleted_at IS NULL", taskType).Count(&count).Error
+	return count, err
+}
+
+// GetTypeStatistics 获取所有类型的统计信息
+func (entity SchTask) GetTypeStatistics() (map[string]int64, error) {
+	results := make(map[string]int64)
+
+	// 查询各种类型的任务数量
+	rows, err := global.DB.Model(&entity).
+		Select("type, COUNT(*) as count").
+		Where("deleted_at IS NULL").
+		Group("type").
+		Rows()
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var taskType string
+		var count int64
+		if err := rows.Scan(&taskType, &count); err != nil {
+			continue
+		}
+		results[taskType] = count
+	}
+
+	return results, nil
+}
