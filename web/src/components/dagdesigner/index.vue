@@ -449,7 +449,7 @@ const updateNodesStatus = (result: any) => {
 </script>
 
 <style lang="scss" scoped>
-@import "./index.scss";
+@use "./index.scss";
 
 // 添加Naive UI组件样式覆盖
 .panel-left {
