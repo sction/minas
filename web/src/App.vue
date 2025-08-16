@@ -112,7 +112,7 @@ export default defineComponent({
 </script>
 
 <style>
-@import '@/assets/common.css';
+@import '@/assets/common.scss';
 
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;

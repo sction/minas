@@ -1,0 +1,189 @@
+body {
+    overflow: hidden;
+    --header-height: 64px;
+}
+
+.n-layout-header {
+    padding: 0 16px;
+    height: 56px;
+    display: flex;
+    display: -webkit-flex;
+    align-items: center;
+}
+
+.logo {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+}
+
+.logo>img {
+    margin-right: 8px;
+    height: 28px;
+    width: 28px;
+}
+
+.page-body {
+    padding: 16px;
+}
+
+.n-a {
+    text-decoration: none;
+}
+
+.n-input-group-label {
+    text-align: center;
+}
+
+.CodeMirror {
+    height: 450px !important;
+}
+
+/* 字体大小全局样式
+------------------------------- */
+@for $i from 10 through 32 {
+  .font#{$i} {
+    font-size: #{$i}px !important;
+  }
+}
+
+/* 外边距、内边距全局样式
+------------------------------- */
+@for $i from 0 through 50 {
+  // Margin 样式
+  .m#{$i} {
+    margin: #{$i}px !important;
+  }
+  .mt#{$i} {
+    margin-top: #{$i}px !important;
+  }
+  .mr#{$i} {
+    margin-right: #{$i}px !important;
+  }
+  .mb#{$i} {
+    margin-bottom: #{$i}px !important;
+  }
+  .ml#{$i} {
+    margin-left: #{$i}px !important;
+  }
+  
+  // Padding 样式
+  .p#{$i} {
+    padding: #{$i}px !important;
+  }
+  .pt#{$i} {
+    padding-top: #{$i}px !important;
+  }
+  .pr#{$i} {
+    padding-right: #{$i}px !important;
+  }
+  .pb#{$i} {
+    padding-bottom: #{$i}px !important;
+  }
+  .pl#{$i} {
+    padding-left: #{$i}px !important;
+  }
+}
+
+// 水平方向的 margin 和 padding
+@for $i from 0 through 50 {
+  .mx#{$i} {
+    margin-left: #{$i}px !important;
+    margin-right: #{$i}px !important;
+  }
+  .my#{$i} {
+    margin-top: #{$i}px !important;
+    margin-bottom: #{$i}px !important;
+  }
+  .px#{$i} {
+    padding-left: #{$i}px !important;
+    padding-right: #{$i}px !important;
+  }
+  .py#{$i} {
+    padding-top: #{$i}px !important;
+    padding-bottom: #{$i}px !important;
+  }
+}
+
+/* 文本对齐
+------------------------------- */
+.text-left { text-align: left !important; }
+.text-center { text-align: center !important; }
+.text-right { text-align: right !important; }
+
+/* 显示控制
+------------------------------- */
+.d-none { display: none !important; }
+.d-block { display: block !important; }
+.d-inline { display: inline !important; }
+.d-inline-block { display: inline-block !important; }
+.d-flex { display: flex !important; }
+
+
+/* Flex 布局相关样式
+------------------------------- */
+.flex-center {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.flex-between {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.flex-around {
+  display: flex !important;
+  justify-content: space-around !important;
+  align-items: center !important;
+}
+
+.flex-column {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.flex-wrap {
+  flex-wrap: wrap !important;
+}
+
+.flex-nowrap {
+  flex-wrap: nowrap !important;
+}
+
+/* 边框圆角样式
+------------------------------- */
+@for $i from 0 through 20 {
+  .rounded#{$i} {
+    border-radius: #{$i}px !important;
+  }
+}
+
+.rounded-full {
+  border-radius: 50% !important;
+}
+
+/* 阴影样式
+------------------------------- */
+.shadow-sm {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+}
+
+.shadow {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 透明度样式
+------------------------------- */
+@for $i from 0 through 10 {
+  .opacity#{$i * 10} {
+    opacity: #{$i * 0.1} !important;
+  }
+}

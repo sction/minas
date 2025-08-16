@@ -25,7 +25,15 @@
       </div>
       <n-space justify="end" align="center" class="header-right" :size="0">
         <div style="margin-right: 10px; line-height: 56px">
-          <n-text depth="3">v{{ version.version }}</n-text>
+          <n-text depth="3">v{{ env.version }}</n-text>
+        </div>
+        <div v-if="env.isContainer" style="margin-right: 10px; line-height: 56px">
+          <n-tooltip trigger="hover">
+            <template #trigger>
+              <n-text depth="3">{{ env.containerType }}</n-text>
+            </template>
+            ${{ env.message }}
+          </n-tooltip>
         </div>
         <n-dropdown @select="selectOption" trigger="hover" :options="dropdownOptions" show-arrow>
           <n-button quaternary size="small">
@@ -112,7 +120,7 @@ const isMobile = useIsMobile()
 const isTablet = useIsTablet()
 const darkTheme = computed(() => store.state.preference.theme === "dark")
 const menuValue = computed(() => findMenuValue(route))
-const version = ref({} as any);
+const env = ref({} as any);
 
 function updateExpandedKeys(data: any) {
   expandedKeys.value = data
@@ -139,8 +147,8 @@ watch(() => route.path, (path: string) => {
 })
 
 onMounted(async () => {
-  const r = await systemApi.version();
-  version.value = r.data as any;
+  const r = await systemApi.getEnvironment();
+  env.value = r.data as any;
   menus.value = getMenus()
 })
 </script>

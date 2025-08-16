@@ -261,6 +261,8 @@ export default {
     },
     "nas": {
         "webdav": "WebDav Service",
+        "nfs": "NFS Service",
+        "samba": "Samba Service",
         "external": "External Storage",
     },
     "webdav_perms": {
@@ -310,6 +312,14 @@ export default {
         "webdav_new": "New WebDav Account",
         "webdav_edit": "Edit WebDav Account",
         "webdav_detail": "WebDav Account Details",
+        "nfs_list": "NFS Share List",
+        "nfs_new": "New NFS Share",
+        "nfs_edit": "Edit NFS Share",
+        "nfs_detail": "NFS Share Details",
+        "samba_list": "Samba Share List",
+        "samba_new": "New Samba Share",
+        "samba_edit": "Edit Samba Share",
+        "samba_detail": "Samba Share Details",
         "term": "Terminal",
         "term_index": "Terminal Management",
         "externalNas_list": "External Storage List",

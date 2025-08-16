@@ -7,6 +7,8 @@ import LoginPage from '../pages/Login.vue'
 import InitPage from '../pages/Init.vue'
 import { store } from "../store";
 import webdavRoute from "./routes/nas/webdav";
+import nfsRoute from "./routes/nas/nfs";
+import sambaRoute from "./routes/nas/samba";
 import externalNasRoute from "./routes/nas/externalNas";
 import projectdirRoute from "./routes/basic/projectdir";
 import schTaskRoute from "./routes/sch/task";
@@ -94,6 +96,8 @@ const routes: RouteRecordRaw[] = [
     redirect: { name: '404' }
   },
   ...webdavRoute,
+  ...nfsRoute,
+  ...sambaRoute,
   ...externalNasRoute,
   ...projectdirRoute,
   ...schTaskRoute,

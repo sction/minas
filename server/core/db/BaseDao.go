@@ -5,6 +5,7 @@ import (
 	"server/core/app/request" // 导入请求处理模块
 	"server/utils"            // 导入工具函数
 	"server/utils/global"     // 导入全局变量
+	"server/utils/logger"
 	"strings"
 
 	"gorm.io/gorm"        // 导入GORM ORM库
@@ -36,6 +37,7 @@ func (BaseModel[T]) Save(entity *T, columns ...string) error {
 			// 记录不存在，执行新增操作
 			return (*entity).Create(entity)
 		} else {
+			logger.LOG.Debugf("更新记录ID: %d, columns: %v\n", id, columns)
 			// 记录存在，执行更新操作
 			return (*entity).Update(entity, columns...)
 		}
@@ -56,6 +58,7 @@ func (BaseModel[T]) Update(entity *T, columns ...string) error {
 	if len(columns) > 0 {
 		// 添加更新人字段到更新列表
 		columns = append(columns, "updated_by")
+		logger.LOG.Debugf("更新记录ID: %d, columns: %v\n", (*entity).GetID(), columns)
 		return global.DB.Model(entity).Select(columns).Updates(entity).Error
 	} else {
 		// 更新所有字段
@@ -96,6 +99,12 @@ func (BaseModel[T]) Count() (int64, error) {
 	var entity T
 	var count int64
 	err := global.DB.Model(entity).Count(&count).Error
+	return count, err
+}
+func (BaseModel[T]) CountEnable() (int64, error) {
+	var entity T
+	var count int64
+	err := global.DB.Model(entity).Where(IS_DISABLE_FIELD+" = ?", 0).Count(&count).Error
 	return count, err
 }
 

@@ -2,10 +2,13 @@ package route
 
 import (
 	"fmt"
+	"server/app/basic/dashboard"
 	"server/app/basic/projectdir"
 	"server/app/basic/system"
 	"server/app/basic/user"
 	"server/app/nas/external"
+	"server/app/nas/nfs"
+	"server/app/nas/samba"
 	"server/app/nas/webdav"
 	"server/app/schtask"
 	"server/app/sflow"
@@ -43,18 +46,12 @@ func Init(app *gin.Engine) {
 			// 系统相关接口子路由组
 			System := WhiteList.Group("/system")
 			{
-				// 获取系统版本信息
-				System.GET("/version", system.SystemVersion)
 				// 检查系统状态
 				System.GET("/check-state", system.SystemCheckState)
 				// 系统初始化接口
 				System.POST("/init", system.SystemInit)
-				// 仪表板统计相关接口
-				System.GET("/dashboard/stats", system.GetDashboardStats)
-				System.GET("/dashboard/task-types", system.GetTaskTypeStats)
-				System.GET("/dashboard/task-execution", system.GetTaskExecutionStats)
-				System.GET("/dashboard/task-trend", system.GetTaskTrend)
-				System.GET("/dashboard/task-projects", system.GetTaskProjectStats)
+				// 获取系统环境信息
+				System.GET("/environment", system.GetSystemEnvironment)
 			}
 		}
 
@@ -66,6 +63,8 @@ func Init(app *gin.Engine) {
 			println("------------------")
 			// 添加项目目录相关路由
 			projectdir.AddRoutes(Basic)
+			// 添加仪表板相关路由
+			dashboard.AddRoutes(Basic)
 		}
 
 		// 终端管理路由组
@@ -107,6 +106,10 @@ func Init(app *gin.Engine) {
 			webdav.AddRoutes(NasSystem)
 			// 添加外部存储相关路由
 			external.AddRoutes(NasSystem)
+			// 添加NFS服务管理相关路由
+			nfs.AddRoutes(NasSystem)
+			// 添加Samba服务管理相关路由
+			samba.AddRoutes(NasSystem)
 		}
 
 		// 配置管理路由组，通过API密钥认证保护

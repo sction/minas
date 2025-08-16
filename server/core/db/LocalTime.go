@@ -38,7 +38,14 @@ func (t LocalTime) MarshalJSON() ([]byte, error) {
 // 返回:
 //   - error: 错误信息
 func (t *LocalTime) UnmarshalJSON(data []byte) (err error) {
-	now, err := time.ParseInLocation(`"`+TimeFormat+`"`, string(data), time.Local)
+	str := string(data)
+	// 处理空字符串、null或空白情况
+	if str == `""` || str == "null" || str == `" "` || len(str) <= 2 {
+		*t = LocalTime{time.Time{}} // 设置为零值时间
+		return nil
+	}
+
+	now, err := time.ParseInLocation(`"`+TimeFormat+`"`, str, time.Local)
 	*t = LocalTime{now}
 	return
 }

@@ -1,11 +1,13 @@
-# syntax=docker/dockerfile:1
 FROM alpine:3.21
 LABEL author=sorc@sction.org
 ARG TARGETOS
 ARG TARGETARCH
 COPY ./dist/minas_linux_${TARGETARCH} /usr/bin/minas
 COPY ./rclone/ca.crt /usr/local/share/ca-certificates/myrootca.crt
-#RUN apk add ncat openssh-client
+# RUN apk add ncat openssh-client
+# RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories \
+#     && apk update \
+#     &&  apk add tzdata ca-certificates curl unzip
 RUN apk add tzdata ca-certificates curl unzip
 RUN curl -L \
     --fail \

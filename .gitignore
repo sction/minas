@@ -18,6 +18,8 @@ dist
 /server/data/certs
 /changes
 /copy-changes.sh
-server/data/minas.db-shm
-server/data/minas.db-wal
-copy_changed_files.sh
+/server/data/minas.db-shm
+/server/data/minas.db-wal
+/copy_changed_files.sh
+/delete-from-deleted-files.sh
+/deleted_files.txt

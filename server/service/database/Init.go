@@ -88,7 +88,9 @@ func Init() {
 		&sflow.SFlow{},       // 流程配置表
 		&sflow.SFlowLog{},    // 流程日志表
 		&nas.Webdav{},        // WebDAV配置表
+		&nas.SambaShare{},    // Samba共享配置表
 		&nas.ExternalNas{},   // 外部存储配置表
+		&nas.NfsShare{},      // NFS共享配置表
 		&scheduled.SchTask{}, // 计划任务表
 		&log.SchLog{},        // 计划任务日志表
 	)

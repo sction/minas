@@ -74,9 +74,9 @@ class Ajax {
                             window.message.success(response.data.msg)
                         }
                     } else if (response.data.code == 4000 || response.data.code == 400 || response.data.code == 401 || response.data.code == 403 || response.data.code == 404 || response.data.code == 500) {
-                        window.message.error(response.data.msg, { duration: 10000, closable: true, })
+                        window.message.error(response.data.msg, { duration: 60000, closable: true, })
                     } else {
-                        window.message.info(response.data.msg, { duration: 6000, closable: true, })
+                        window.message.info(response.data.msg, { duration: 10000, closable: true, })
                     }
                 } else {
                     // 根据状态码处理提示信息
@@ -84,7 +84,7 @@ class Ajax {
                         //存在关联数据 一般用于删除数据时
                         window.message.info("存在关联数据(" + response.data.data + "条)，请先删除关联数据后再尝试删除当前数据！", { duration: 6000, closable: false, })
                     } else if (response.data.code == 4401) {
-                        window.message.info(response.data.msg, { duration: 6000, closable: false, })
+                        window.message.info(response.data.msg, { duration: 10000, closable: false, })
                     } else if (response.data.code > 4000) {
                         console.warn("未处理的错误：", response.data)
                     }

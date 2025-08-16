@@ -25,12 +25,55 @@ import {
   TerminalOutline,
   BookOutline,
   ArchiveOutline,
+  FolderOpenOutline,
+  CloudOutline,
+  LinkOutline,
 } from "@vicons/ionicons5";
 import XIcon from "@/components/Icon.vue";
 import { t } from "@/locales";
 import { removePageData} from "@/utils/render";
+import systemApi from '@/api/system';
 
 const router = useRouter();
+// 系统环境信息，用于判断操作系统类型
+let systemEnvironment: any = null;
+
+// 初始化系统环境信息
+const initSystemEnvironment = async () => {
+  if (!systemEnvironment) {
+    try {
+      const result = (await systemApi.getEnvironment()).data as any;
+      if (result && result.success) {
+        systemEnvironment = result.data;
+      }
+    } catch (error) {
+      console.warn('Failed to get system environment:', error);
+      // 如果获取失败，默认假设为Linux系统
+      systemEnvironment = { os: 'linux' };
+    }
+  }
+  return systemEnvironment;
+};
+
+// 检查当前系统是否支持指定功能
+const isFeatureSupported = (feature: string): boolean => {
+  if (!systemEnvironment) {
+    // 如果环境信息还未加载，默认支持（后续会重新渲染）
+    return true;
+  }
+  
+  const os = systemEnvironment.os || 'linux';
+  
+  switch (feature) {
+    case 'nfs':
+    case 'samba':
+      // NFS和Samba仅在Linux系统上支持
+      return os === 'linux';
+    default:
+      return true;
+  }
+};
+
 function renderIcon(icon: any) {
   return () => h(NIcon, null, { default: () => h(icon) });
 }
@@ -117,7 +160,9 @@ export const allow = (menu: any) => {
   return true;
 
 }
-export const getMenus = () => {
+export const getMenus = async () => {
+  // 确保系统环境信息已加载
+  await initSystemEnvironment();
   const ms = getMenuOptions(menuOptions);
   return ms;
 }
@@ -132,6 +177,16 @@ const getMenuOptions = (menus: MenuOption[]) => {
       }
       continue;
     }
+    
+    // 检查系统特性支持
+    if (menu.requiresFeature && !isFeatureSupported(menu.requiresFeature)) {
+      //系统不支持该特性，隐藏菜单
+      if (router && menu.path) {
+        router.removeRoute(menu.path);
+      }
+      continue;
+    }
+    
     if (!allow(menu)) {
       //无权限 隐藏菜单
       if (router && menu.path) {
@@ -165,12 +220,6 @@ export const menuOptions: MenuOption[] = [
     }
   },
   {
-    label: t('fields.projectdir'),
-    key: "projectdir",
-    path: "/basic/projectdir",
-    icon: renderIcon(AlbumsOutline),
-  },
-  {
     label: t('fields.nas'),
     key: "nas",
     icon: renderIcon(FileTrayFullOutline),
@@ -179,15 +228,35 @@ export const menuOptions: MenuOption[] = [
         label: t('nas.webdav'),
         key: "webdav",
         path: "/nas/webdav",
-        icon: renderIcon(ServerOutline),
+        icon: renderIcon(CloudOutline),
+      },
+      {
+        label: t('nas.nfs'),
+        key: "nfs",
+        path: "/nas/nfs",
+        icon: renderIcon(LayersOutline),
+        requiresFeature: 'nfs', // 仅Linux系统支持
+      },
+      {
+        label: t('nas.samba'),
+        key: "samba",
+        path: "/nas/samba",
+        icon: renderIcon(FolderOpenOutline),
+        requiresFeature: 'samba', // 仅Linux系统支持
       },
       {
         label: t('nas.external'),
         key: "external",
         path: "/nas/external",
-        icon: renderIcon(ServerOutline),
+        icon: renderIcon(LinkOutline),
       }
     ],
+  },
+  {
+    label: t('fields.projectdir'),
+    key: "projectdir",
+    path: "/basic/projectdir",
+    icon: renderIcon(AlbumsOutline),
   },
   // {
   //   label: '作业流程',

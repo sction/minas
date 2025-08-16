@@ -1,10 +1,10 @@
 <template>
   <n-space class="page-body" vertical :size="12">
     <!-- 数量统计块 -->
-    <n-grid cols="1 s:2 m:4" responsive="screen" :x-gap="12" :y-gap="12">
+    <n-grid cols="1 s:2 m:3 l:6" responsive="screen" :x-gap="12" :y-gap="12">
       <n-grid-item>
         <n-card>
-          <n-statistic label="项目数" :value="dashboardStats.projectCount">
+          <n-statistic label="项目" :value="dashboardStats.projectCount">
             <template #prefix>
               <n-icon color="#18a058">
                 <FolderOpenOutline />
@@ -15,7 +15,7 @@
       </n-grid-item>
       <n-grid-item>
         <n-card>
-          <n-statistic label="WebDAV服务数" :value="dashboardStats.webdavCount">
+          <n-statistic label="WebDAV共享" :value="dashboardStats.webdavCount">
             <template #prefix>
               <n-icon color="#2080f0">
                 <CloudOutline />
@@ -26,10 +26,10 @@
       </n-grid-item>
       <n-grid-item>
         <n-card>
-          <n-statistic label="外部存储数" :value="dashboardStats.externalStorageCount">
+          <n-statistic label="NFS共享" :value="dashboardStats.nfsCount">
             <template #prefix>
-              <n-icon color="#f0a020">
-                <ServerOutline />
+              <n-icon color="#722ed1">
+                <LayersOutline />
               </n-icon>
             </template>
           </n-statistic>
@@ -37,7 +37,29 @@
       </n-grid-item>
       <n-grid-item>
         <n-card>
-          <n-statistic label="计划任务数" :value="dashboardStats.scheduledTaskCount">
+          <n-statistic label="Samba共享" :value="dashboardStats.sambaCount">
+            <template #prefix>
+              <n-icon color="#fa8c16">
+                <FolderOpenOutline />
+              </n-icon>
+            </template>
+          </n-statistic>
+        </n-card>
+      </n-grid-item>
+      <n-grid-item>
+        <n-card>
+          <n-statistic label="外部存储" :value="dashboardStats.externalStorageCount">
+            <template #prefix>
+              <n-icon color="#f0a020">
+                <LinkOutline />
+              </n-icon>
+            </template>
+          </n-statistic>
+        </n-card>
+      </n-grid-item>
+      <n-grid-item>
+        <n-card>
+          <n-statistic label="计划任务" :value="dashboardStats.scheduledTaskCount">
             <template #prefix>
               <n-icon color="#d03050">
                 <TimeOutline />
@@ -96,12 +118,13 @@ import {
 import {
   FolderOpenOutline,
   CloudOutline,
-  ServerOutline,
-  TimeOutline
+  LinkOutline,
+  TimeOutline,
+  LayersOutline
 } from "@vicons/ionicons5";
 import * as echarts from 'echarts';
-import systemApi from "@/api/system";
-import type { DashboardStats, TaskTypeStats, TaskExecutionStats, TaskTrendData, TaskProjectStats } from "@/api/system";
+import dashboardApi from "@/api/dashboard";
+import type { DashboardStats, TaskTypeStats, TaskExecutionStats, TaskTrendData, TaskProjectStats } from "@/api/dashboard";
 
 const message = useMessage();
 
@@ -110,7 +133,9 @@ const dashboardStats = ref<DashboardStats>({
   projectCount: 0,
   webdavCount: 0,
   externalStorageCount: 0,
-  scheduledTaskCount: 0
+  scheduledTaskCount: 0,
+  nfsCount: 0,
+  sambaCount: 0
 });
 
 const taskTypeStats = ref<TaskTypeStats[]>([]);
@@ -138,7 +163,7 @@ let taskTrendLineChart: echarts.EChartsType | null = null;
 // 获取统计数据
 async function fetchDashboardStats() {
   try {
-    const response = await systemApi.getDashboardStats();
+    const response = await dashboardApi.getStats();
     if (response.code === 200) {
       dashboardStats.value = response.data as any;
     }
@@ -149,14 +174,16 @@ async function fetchDashboardStats() {
       projectCount: 15,
       webdavCount: 3,
       externalStorageCount: 5,
-      scheduledTaskCount: 28
+      scheduledTaskCount: 28,
+      nfsCount: 2,
+      sambaCount: 4
     };
   }
 }
 
 async function fetchTaskTypeStats() {
   try {
-    const response = await systemApi.getTaskTypeStats();
+    const response = await dashboardApi.getTaskTypeStats();
     if (response.code === 200) {
       taskTypeStats.value = response.data as any;
     }
@@ -174,7 +201,7 @@ async function fetchTaskTypeStats() {
 
 async function fetchTaskExecutionStats() {
   try {
-    const response = await systemApi.getTaskExecutionStats();
+    const response = await dashboardApi.getTaskExecutionStats();
     if (response.code === 200) {
       taskExecutionStats.value = response.data as any;
     }
@@ -192,7 +219,7 @@ async function fetchTaskExecutionStats() {
 
 async function fetchTaskTrend() {
   try {
-    const response = await systemApi.getTaskTrend(30);
+    const response = await dashboardApi.getTaskTrend(30);
     if (response.code === 200) {
       taskTrendData.value = response.data as any;
     }
@@ -220,7 +247,7 @@ async function fetchTaskTrend() {
 
 async function fetchTaskProjectStats() {
   try {
-    const response = await systemApi.getTaskProjectStats();
+    const response = await dashboardApi.getTaskProjectStats();
     if (response.code === 200) {
       taskProjectStats.value = response.data as any;
       // 为每个项目分配不同的颜色
