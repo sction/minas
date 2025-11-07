@@ -31,10 +31,9 @@ import {
 } from "@vicons/ionicons5";
 import XIcon from "@/components/Icon.vue";
 import { t } from "@/locales";
-import { removePageData} from "@/utils/render";
+import { removePageData } from "@/utils/render";
 import systemApi from '@/api/system';
 
-const router = useRouter();
 // 系统环境信息，用于判断操作系统类型
 let systemEnvironment: any = null;
 
@@ -61,9 +60,9 @@ const isFeatureSupported = (feature: string): boolean => {
     // 如果环境信息还未加载，默认支持（后续会重新渲染）
     return true;
   }
-  
+
   const os = systemEnvironment.os || 'linux';
-  
+
   switch (feature) {
     case 'nfs':
     case 'samba':
@@ -167,6 +166,7 @@ export const getMenus = async () => {
   return ms;
 }
 const getMenuOptions = (menus: MenuOption[]) => {
+  const router = useRouter();
   const newMenus: MenuOption[] = [];
   for (let i = 0; i < menus.length; i++) {
     const menu = menus[i] as any;
@@ -177,7 +177,7 @@ const getMenuOptions = (menus: MenuOption[]) => {
       }
       continue;
     }
-    
+
     // 检查系统特性支持
     if (menu.requiresFeature && !isFeatureSupported(menu.requiresFeature)) {
       //系统不支持该特性，隐藏菜单
@@ -186,7 +186,7 @@ const getMenuOptions = (menus: MenuOption[]) => {
       }
       continue;
     }
-    
+
     if (!allow(menu)) {
       //无权限 隐藏菜单
       if (router && menu.path) {
@@ -269,12 +269,6 @@ export const menuOptions: MenuOption[] = [
     key: "schtask",
     path: "/schtask",
     icon: renderIcon(BookOutline),
-  },
-  {
-    label: t('titles.term_index'),
-    key: "term",
-    path: "/term",
-    icon: renderIcon(TerminalOutline),
   },
   {
     label: t('fields.system'),
