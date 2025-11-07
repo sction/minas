@@ -46,6 +46,9 @@ export default defineConfig(({ mode, command }) => {
     },
     base: VITE_APP_BASE,
     server: {
+      watch:{
+        ignored: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.git/**'],
+      },
       port: 3002,
       proxy: {
         '/minas/api/v1': {// '/v1'是代理标识，用于告诉node，url前面是/v1的就是使用代理的

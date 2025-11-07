@@ -16,6 +16,7 @@ import schLogRoute from "./routes/sch/log";
 import termRoute from "./routes/term/index";
 import sflowRoute from "./routes/sflow/index";
 import sflowLogRoute from "./routes/sflow/log";
+import depopsRoute from "./routes/depops/index";
 import { t } from "@/locales";
 import { baseUrl, frontBaseUrl } from '@/config';
 
@@ -105,6 +106,7 @@ const routes: RouteRecordRaw[] = [
   ...termRoute,
   ...sflowRoute,
   ...sflowLogRoute,
+  ...depopsRoute,
 ]
 
 function createSiteRouter() {

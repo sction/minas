@@ -1,10 +1,13 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"runtime"
 	"server/utils"
+	"strings"
 
 	"github.com/kardianos/service"
 	"github.com/spf13/cobra"
@@ -74,9 +77,22 @@ var installCmd = &cobra.Command{
 	Long:  `安装服务.`,
 	PreRun: func(cmd *cobra.Command, args []string) {
 		// 命令执行前的准备工作
+		if runtime.GOOS == "linux" {
+			// 检查并配置 SELinux
+			configureSELinux()
+		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		ControlService("install") // 控制服务执行安装操作
+	},
+	PostRun: func(cmd *cobra.Command, args []string) {
+		// 命令执行后的一些清理工作
+		log.Println("安装服务完成，请使用 'minas start' 启动服务。")
+		if runtime.GOOS == "linux" {
+			// 检查并配置防火墙
+			configureFirewall()
+			log.Println("请确保防火墙规则已正确配置。")
+		}
 	},
 }
 
@@ -122,6 +138,7 @@ var stopCmd = &cobra.Command{
 // ControlService 根据指定的操作控制服务
 // 参数 action 表示要执行的操作：run, install, uninstall, start, stop
 func ControlService(action string) {
+	log.Println("正在执行服务操作: " + action + "")
 	s, err := initService() // 初始化服务
 	if err != nil {
 		log.Println("初始化服务失败：" + err.Error())
@@ -141,6 +158,145 @@ func ControlService(action string) {
 
 // initService 初始化并返回服务实例
 // 返回服务实例和可能的错误
+// configureFirewall 检查并配置防火墙规则
+// configureSELinux 检查并配置 SELinux 权限
+func configureSELinux() {
+	// 检查是否安装了 SELinux 工具
+	if _, err := os.Stat("/usr/sbin/sestatus"); err != nil {
+		log.Println("未检测到 SELinux 工具，跳过 SELinux 配置")
+		return
+	}
+
+	// 检查 SELinux 状态
+	cmd := exec.Command("getenforce")
+	output, err := cmd.Output()
+	if err != nil {
+		log.Printf("获取 SELinux 状态失败: %v\n", err)
+		return
+	}
+
+	status := strings.TrimSpace(string(output))
+	if strings.ToLower(status) == "disabled" {
+		log.Println("SELinux 已禁用，无需配置")
+		return
+	}
+
+	log.Printf("检测到 SELinux 状态为: %s，正在配置程序权限...\n", status)
+
+	// 获取程序路径
+	exePath := utils.GetExeFileDirectory()
+	if exePath == "" {
+		log.Println("无法获取程序路径，跳过 SELinux 配置")
+		return
+	}
+
+	// 设置可执行文件的 SELinux 上下文
+	cmd = exec.Command("chcon", "-t", "bin_t", exePath+"/minas")
+	if err := cmd.Run(); err != nil {
+		log.Printf("设置程序 SELinux 上下文失败: %v\n", err)
+	} else {
+		log.Println("已设置程序 SELinux 上下文")
+	}
+}
+
+func configureFirewall() {
+	// 获取需要配置的端口
+	httpPort := "8002"
+	httpsPort := "8003"
+
+	// 尝试配置 firewalld
+	if configureFirewalld(httpPort, httpsPort) {
+		return
+	}
+
+	// 如果 firewalld 未安装或未运行，尝试配置 ufw
+	if configureUfw(httpPort, httpsPort) {
+		return
+	}
+
+	log.Println("未检测到支持的防火墙服务（firewalld/ufw），无需配置防火墙规则")
+}
+
+// configureFirewalld 配置 firewalld 防火墙规则
+func configureFirewalld(httpPort, httpsPort string) bool {
+	// 检查是否安装了 firewalld
+	if _, err := os.Stat("/usr/bin/firewall-cmd"); err == nil {
+		// 检查 firewalld 是否运行
+		cmd := exec.Command("systemctl", "is-active", "firewalld")
+		if output, err := cmd.Output(); err == nil && strings.TrimSpace(string(output)) == "active" {
+			log.Println("检测到 firewalld 正在运行，正在配置防火墙规则...")
+
+			// 检查 firewall-cmd 是否可以执行
+			testCmd := exec.Command("firewall-cmd", "--state")
+			if err := testCmd.Run(); err != nil {
+				log.Println("无法执行 firewall-cmd，可能需要以 root 权限运行")
+				return false
+			}
+			// 添加 HTTP 端口
+			httpPortRule := fmt.Sprintf("%s/tcp", httpPort)
+			cmd = exec.Command("firewall-cmd", "--zone=public", "--add-port="+httpPortRule, "--permanent")
+			if err := cmd.Run(); err != nil {
+				log.Printf("添加 HTTP 端口失败: %v\n", err)
+			} else {
+				log.Printf("已添加 HTTP 端口 %s\n", httpPortRule)
+			}
+
+			// 添加 HTTPS 端口
+			httpsPortRule := fmt.Sprintf("%s/tcp", httpsPort)
+			cmd = exec.Command("firewall-cmd", "--zone=public", "--add-port="+httpsPortRule, "--permanent")
+			if err := cmd.Run(); err != nil {
+				log.Printf("添加 HTTPS 端口失败: %v\n", err)
+			} else {
+				log.Printf("已添加 HTTPS 端口 %s\n", httpsPortRule)
+			}
+
+			// 重新加载防火墙规则
+			cmd = exec.Command("firewall-cmd", "--reload")
+			if err := cmd.Run(); err != nil {
+				log.Printf("重新加载防火墙规则失败: %v\n", err)
+			} else {
+				log.Println("防火墙规则已更新")
+			}
+			return true
+		}
+	}
+	return false
+}
+
+// configureUfw 配置 ufw 防火墙规则
+func configureUfw(httpPort, httpsPort string) bool {
+	// 检查是否安装了 ufw
+	if _, err := os.Stat("/usr/bin/ufw"); err == nil {
+		// 检查 ufw 是否启用
+		cmd := exec.Command("ufw", "status")
+		if output, err := cmd.Output(); err == nil && strings.Contains(string(output), "Status: active") {
+			log.Println("检测到 ufw 正在运行，正在配置防火墙规则...")
+
+			// 添加 HTTP 端口
+			cmd = exec.Command("ufw", "allow", httpPort+"/tcp")
+			if err := cmd.Run(); err != nil {
+				log.Printf("添加 HTTP 端口失败: %v\n", err)
+			} else {
+				log.Printf("已添加 HTTP 端口 %s/tcp\n", httpPort)
+			}
+
+			// 添加 HTTPS 端口
+			cmd = exec.Command("ufw", "allow", httpsPort+"/tcp")
+			if err := cmd.Run(); err != nil {
+				log.Printf("添加 HTTPS 端口失败: %v\n", err)
+			} else {
+				log.Printf("已添加 HTTPS 端口 %s/tcp\n", httpsPort)
+			}
+
+			log.Println("ufw 防火墙规则已更新")
+			return true
+		} else {
+			log.Println("检测到 ufw 已安装但未启用")
+		}
+	}
+	return false
+}
+
 func initService() (service.Service, error) {
 	os.Chdir(utils.GetExeFileDirectory()) // 切换到可执行文件所在目录
 
@@ -158,8 +314,7 @@ func initService() (service.Service, error) {
 		// 非 Windows 系统配置
 		options["Restart"] = "on-failure"
 		options["SuccessExitStatus"] = "1 2 8 SIGKILL"
-		dependencies = append(dependencies, "Requires=network.target",
-			"After=network-online.target syslog.target")
+		options["SELinuxContext"] = "unconfined_u:object_r:bin_t:s0"
 	}
 
 	// 服务基本配置

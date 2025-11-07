@@ -23,15 +23,19 @@ export function useDataTable(loader: Function, filter: Object | Function, autoFe
         try {
             let args = typeof filter === 'function' ? filter() : filter
             args = isRef(args) ? args.value : args
+            console.log('请求参数:', args); // 添加调试日志
             let r = await loader({
                 ...args,
                 page: page,
                 size: pagination.pageSize,
             });
+            console.log('响应数据:', r); // 添加调试日志
             state.data = r.data || [];
             pagination.itemCount = r.total || 0
             pagination.page = page
             pagination.pageCount = Math.ceil(pagination.itemCount / pagination.pageSize)
+        } catch (error) {
+            console.error('数据加载失败:', error); // 添加错误日志
         } finally {
             state.loading = false;
         }

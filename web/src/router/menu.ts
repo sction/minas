@@ -28,6 +28,7 @@ import {
   FolderOpenOutline,
   CloudOutline,
   LinkOutline,
+  HardwareChipOutline,
 } from "@vicons/ionicons5";
 import XIcon from "@/components/Icon.vue";
 import { t } from "@/locales";
@@ -257,6 +258,31 @@ export const menuOptions: MenuOption[] = [
     key: "projectdir",
     path: "/basic/projectdir",
     icon: renderIcon(AlbumsOutline),
+  },
+  {
+    label: '部署运维',
+    key: "depops",
+    icon: renderIcon(HardwareChipOutline),
+    children: [
+      {
+        label: '节点管理',
+        key: "depops_nodes",
+        path: "/depops/nodes",
+        icon: renderIcon(ServerOutline),
+        meta: {
+          auth: 'depops.node.view'
+        }
+      },
+      {
+        label: '批量操作',
+        key: "depops_batch",
+        path: "/depops/batch",
+        icon: renderIcon(LayersOutline),
+        meta: {
+          auth: 'depops.batch.execute'
+        }
+      }
+    ],
   },
   // {
   //   label: '作业流程',

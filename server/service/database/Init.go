@@ -11,6 +11,7 @@ import (
 	gormLogger "gorm.io/gorm/logger"
 
 	"server/service/basic"
+	"server/service/depops"
 	"server/service/nas"
 	"server/service/scheduled"
 	"server/service/scheduled/log"
@@ -91,6 +92,7 @@ func Init() {
 		&nas.SambaShare{},    // Samba共享配置表
 		&nas.ExternalNas{},   // 外部存储配置表
 		&nas.NfsShare{},      // NFS共享配置表
+		&depops.Node{},       // 节点表
 		&scheduled.SchTask{}, // 计划任务表
 		&log.SchLog{},        // 计划任务日志表
 	)

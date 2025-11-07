@@ -3,9 +3,11 @@ package route
 import (
 	"fmt"
 	"server/app/basic/dashboard"
+	"server/app/basic/filesystem"
 	"server/app/basic/projectdir"
 	"server/app/basic/system"
 	"server/app/basic/user"
+	"server/app/depops"
 	"server/app/nas/external"
 	"server/app/nas/nfs"
 	"server/app/nas/samba"
@@ -110,6 +112,24 @@ func Init(app *gin.Engine) {
 			nfs.AddRoutes(NasSystem)
 			// 添加Samba服务管理相关路由
 			samba.AddRoutes(NasSystem)
+		}
+
+		// 部署运维(Depops)路由组，需要认证中间件保护
+		DepopsSystem := v1.Group("/depops", middleware.AuthMiddleware)
+		{
+			// 节点管理相关路由
+			nodeApp := &depops.NodeApp{}
+			nodeApp.AddRoutes(DepopsSystem)
+
+			// 批量操作相关路由
+			batchApp := depops.NewBatchOperationApp()
+			batchApp.AddRoutes(DepopsSystem)
+		}
+		// 本地文件系统路由组，需要认证中间件保护
+		LocalFileSystem := v1.Group("/fs", middleware.AuthMiddleware)
+		{
+			// 添加本地文件管理相关路由
+			LocalFileSystem.GET("/list", filesystem.List)
 		}
 
 		// 配置管理路由组，通过API密钥认证保护

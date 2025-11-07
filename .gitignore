@@ -22,4 +22,6 @@ dist
 /server/data/minas.db-wal
 /copy_changed_files.sh
 /delete-from-deleted-files.sh
+/server/server
+/server/main
 /deleted_files.txt

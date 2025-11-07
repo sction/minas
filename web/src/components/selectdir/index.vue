@@ -18,9 +18,6 @@
           :on-update:expanded-keys="updatePrefixWithExpaned" key-field="key" label-field="Name"
           :on-update:selected-keys="dirSelected" :default-expanded-keys="dirTreeProps.expandedKeys"
           :selected-keys="[dirTreeProps.selectedValue]">
-          <template #arrow>
-            <FolderIcon />
-          </template>
         </n-tree></n-space>
       <template #footer>
         <n-space>

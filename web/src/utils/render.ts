@@ -69,7 +69,7 @@ export function renderTag(
     type: "default" | "error" | "info" | "success" | "warning" = "default",
     size: "small" | "medium" | "large" = "small"
 ) {
-    return h(NTag, { type, size, round: true }, { default: () => text, })
+    return h(NTag, { class:"mr5", type, size, round: true, bordered: false }, { default: () => text, })
 }
 
 export interface Tag {

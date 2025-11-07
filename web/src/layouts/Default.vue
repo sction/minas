@@ -149,7 +149,7 @@ watch(() => route.path, (path: string) => {
 onMounted(async () => {
   const r = await systemApi.getEnvironment();
   env.value = r.data as any;
-  menus.value = getMenus()
+  menus.value = await getMenus()
 })
 </script>
 

@@ -73,9 +73,7 @@
             :allow-checking-not-loaded="false" :on-load="handleDirTreeLoad"
             :on-update:expanded-keys="updatePrefixWithExpaned" :on-update:selected-keys="dirSelected"
             :default-expanded-keys="dirTreeProps.expandedKeys" :selected-keys="[dirTreeProps.selectedValue]">
-            <template #arrow>
-              <FolderBIcon />
-            </template>
+             
           </n-tree></n-space>
         <template #footer>
           <n-space>
